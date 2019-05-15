@@ -42,9 +42,10 @@ class Capture:
     Provides the ability to capture, upload, and save packet captures
     """
 
-    def __init__(self, interface='lo', timeout=60, filepath=None):
+    def __init__(self, interface='lo', bpf_filter=None, timeout=60, filepath=None):
         ts = datetime.now()
         self.interface = interface
+        self.bpf_filter = bpf_filter
         self.timeout = timeout
         self.path = filepath
         self.capture_start = None
@@ -71,7 +72,7 @@ class Capture:
         try:
             logger.info("Beginning packet capture for {} seconds.".format(self.timeout))
             self.capture_start = datetime.utcnow()
-            self.size = capture_on_interface(self.interface, self.name, timeout=self.timeout)
+            self.size = capture_on_interface(self.interface, self.bpf_filter, self.name, timeout=self.timeout)
             self.capture_end = datetime.utcnow()
             self.md5 = get_filepath_md5_hash('tmp/{}'.format(self.name))
             self.path = 'tmp/{}'.format(self.name)
@@ -325,8 +326,9 @@ class Trigger:
     Provides a simple interface which listens for pcaps and performs a capture, when an unknown connection is made.
     """
 
-    def __init__(self, interface, capture_period_after_trigger=60):
+    def __init__(self, interface, bpf_filter= None, capture_period_after_trigger=60):
         self.interface = interface
+        self.bpf_filter = bpf_filter
         self.capture_period_after_trigger = capture_period_after_trigger
         self.whitelisted_ips = []
         self._open_whitelist()
@@ -409,7 +411,7 @@ class Trigger:
                                      .format(src, self.capture_period_after_trigger))
                         trigger = dst
                 if trigger:
-                    capture = Capture(self.interface, timeout=self.capture_period_after_trigger)
+                    capture = Capture(self.interface, self.bpf_filter, timeout=self.capture_period_after_trigger)
                     capture.capture()
                     suppress = trigger
                     try:

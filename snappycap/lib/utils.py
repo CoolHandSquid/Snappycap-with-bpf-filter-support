@@ -22,7 +22,7 @@ from terminaltables import AsciiTable
 from snappycap.lib import const
 
 
-def capture_on_interface(interface, name, timeout=60):
+def capture_on_interface(interface, bpf_filter, name, timeout=60):
     """
     :param interface: The name of the interface on which to capture traffic
     :param name: The name of the capture file
@@ -43,7 +43,7 @@ def capture_on_interface(interface, name, timeout=60):
         progressbar.Timer(),
     ]
     progress = progressbar.ProgressBar(widgets=widgets)
-    capture = pyshark.LiveCapture(interface=interface, output_file=os.path.join('tmp', name))
+    capture = pyshark.LiveCapture(interface=interface, bpf_filter=bpf_filter, output_file=os.path.join('tmp', name))
     pcap_size = 0
     for i, packet in enumerate(capture.sniff_continuously()):
         progress.update(i)

@@ -33,6 +33,11 @@ def parse_commandline():
         required='--listen' in sys.argv
     )
     args.add_argument(
+        "--bpf-filter",
+        help="Sets the BPF filter. Syntax example: 'tcp port 443'/nmore synax available at: http://biot.com/capstats/bpf.html'",
+        type=str,
+    )
+    args.add_argument(
         "--list-interfaces",
         help="Lists the available interfaces.",
         action="store_true"
@@ -61,8 +66,8 @@ if __name__ == '__main__':
     elif args.export_pcaps:
         interfaces.export_submissions_status()
     elif args.learn:
-        interfaces.Trigger(args.interface, capture_period_after_trigger=args.learn).learn(args.learn)
+        interfaces.Trigger(args.interface, args.bpf_filter, capture_period_after_trigger=args.learn).learn(args.learn)
     elif args.listen:
         interfaces.Database().initialize_database()
-        interfaces.Trigger(args.interface, capture_period_after_trigger=args.capture_seconds).listen_and_trigger()
+        interfaces.Trigger(args.interface, args.bpf_filter, capture_period_after_trigger=args.capture_seconds).listen_and_trigger()
     sys.exit(0)

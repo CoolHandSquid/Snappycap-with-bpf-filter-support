@@ -22,6 +22,11 @@ def parse_commandline():
         required='--analyze' in sys.argv
     )
     args.add_argument(
+        "--bpf-filter",
+        help="Sets the BPF filter. Syntax example: 'tcp port 443'/nmore synax available at: http://biot.com/capstats/bpf.html'",
+        type=str,
+    )
+    args.add_argument(
         '--analyze',
         help="If included, capture will be uploaded for analysis to PacketTotal.com.",
         action="store_true"
@@ -57,7 +62,7 @@ if __name__ == '__main__':
     elif args.analyze:
         utils.print_analysis_disclaimer()
         interfaces.Database().initialize_database()
-        pcap = interfaces.Capture(args.interface, timeout=args.seconds)
+        pcap = interfaces.Capture(args.interface, args.bpf_filter, timeout=args.seconds)
         print("Beginning packet capture for {} seconds. Max PacketTotal upload size is 50MB; "
               "will terminate if this is reached.".format(args.seconds))
         sleep(2)
